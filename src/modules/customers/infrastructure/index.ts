@@ -1,1 +1,1 @@
-export {};
+export * from './customers.module.js';

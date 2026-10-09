@@ -126,6 +126,14 @@ module.exports = {
       from: {},
       to: { circular: true },
     },
+    {
+      name: 'not-to-unresolvable',
+      comment:
+        "Imports must resolve to an existing file (catches typos like './SignedUpCustomer.js').",
+      severity: 'error',
+      from: {},
+      to: { couldNotResolve: true },
+    },
   ],
   options: {
     doNotFollow: { path: 'node_modules' },
