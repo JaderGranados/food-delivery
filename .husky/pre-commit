@@ -1,3 +1,4 @@
 yarn lint
+yarn format:check
 yarn typecheck
 yarn test
