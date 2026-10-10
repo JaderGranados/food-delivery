@@ -7,6 +7,9 @@ import type { CustomerRepository, PasswordHasher } from '../../ports/index.js';
 import { SignUpCustomer } from './sign-up-customer.use-case.js';
 
 class FakeCustomerRepository implements CustomerRepository {
+  findById(id: string): Promise<Customer | null> {
+    return Promise.resolve(this.saved.find((c) => c.id === id) ?? null);
+  }
   readonly saved: Customer[] = [];
 
   async findByEmail(email: Email): Promise<Customer | null> {

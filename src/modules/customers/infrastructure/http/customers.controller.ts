@@ -1,25 +1,27 @@
 import {
-  BadRequestException,
   Body,
-  ConflictException,
   Controller,
   HttpCode,
   HttpStatus,
+  Param,
   Post,
 } from '@nestjs/common';
 import {
   SignUpCustomer,
   type SignedUpCustomer,
+  AddAddressUseCase,
 } from '../../application/index.js';
-import {
-  EmailAlreadyInUseError,
-  InvalidEmailError,
-} from '../../domain/index.js';
-import { SignUpCustomerDto } from './dtos/index.js';
+import { AddAddressDto, SignUpCustomerDto } from './dtos/index.js';
+import { Controller as BaseController } from '@shared/infrastructure/index.js';
 
 @Controller('customers')
-export class CustomersController {
-  constructor(private readonly signUpCustomer: SignUpCustomer) {}
+export class CustomersController extends BaseController {
+  constructor(
+    private readonly signUpCustomer: SignUpCustomer,
+    private readonly addAddressUseCase: AddAddressUseCase,
+  ) {
+    super();
+  }
 
   @Post('signup')
   @HttpCode(HttpStatus.CREATED)
@@ -27,13 +29,27 @@ export class CustomersController {
     try {
       return await this.signUpCustomer.execute(body);
     } catch (error) {
-      if (error instanceof EmailAlreadyInUseError) {
-        throw new ConflictException(error.message);
-      }
-      if (error instanceof InvalidEmailError) {
-        throw new BadRequestException(error.message);
-      }
-      throw error;
+      this.handleError(error);
+    }
+  }
+
+  @Post(':id/add-address')
+  async addAddress(
+    @Param('id') customerId: string,
+    @Body() body: AddAddressDto,
+  ) {
+    try {
+      return await this.addAddressUseCase.execute({
+        customerId,
+        street: body.street,
+        city: body.city,
+        state: body.state,
+        postalCode: body.postalCode,
+        country: body.country,
+        reference: body.reference,
+      });
+    } catch (error) {
+      this.handleError(error);
     }
   }
 }

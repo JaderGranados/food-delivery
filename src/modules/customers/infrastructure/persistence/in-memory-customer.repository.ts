@@ -6,12 +6,19 @@ import type { CustomerRepository } from '../../application/index.js';
 export class InMemoryCustomerRepository implements CustomerRepository {
   private readonly customersByEmail = new Map<string, Customer>();
 
+  async findById(id: string): Promise<Customer | null> {
+    const customer = Array.from(this.customersByEmail.values()).find(
+      (c) => c.id === id,
+    );
+    return Promise.resolve(customer ?? null);
+  }
+
   async findByEmail(email: Email): Promise<Customer | null> {
-    return this.customersByEmail.get(email.value) ?? null;
+    return Promise.resolve(this.customersByEmail.get(email.value) ?? null);
   }
 
   async save(customer: Customer): Promise<Customer> {
     this.customersByEmail.set(customer.email.value, customer);
-    return customer;
+    return Promise.resolve(customer);
   }
 }

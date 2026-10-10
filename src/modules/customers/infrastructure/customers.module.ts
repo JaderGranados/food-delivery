@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import {
   PASSWORD_HASHER,
   SignUpCustomer,
+  AddAddressUseCase,
   CUSTOMER_REPOSITORY,
 } from '../application/index.js';
 import { CustomersController } from './http/index.js';
@@ -12,6 +13,7 @@ import { ScryptPasswordHasher } from './security/index.js';
   controllers: [CustomersController],
   providers: [
     SignUpCustomer,
+    AddAddressUseCase,
     { provide: CUSTOMER_REPOSITORY, useClass: InMemoryCustomerRepository },
     { provide: PASSWORD_HASHER, useClass: ScryptPasswordHasher },
   ],

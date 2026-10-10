@@ -1,4 +1,4 @@
-import { Email } from './email.js';
+import { Email } from './value-objects/index.js';
 import { InvalidEmailError } from './errors.js';
 
 describe('Email', () => {
