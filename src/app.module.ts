@@ -4,6 +4,7 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { CatalogModule } from '@modules/catalog/infrastructure/index.js';
 import { DeliveryModule } from '@modules/delivery/infrastructure/index.js';
+import { RatingsModule } from '@modules/ratings/infrastructure/index.js';
 import { PromotionsModule } from '@modules/promotions/infrastructure/index.js';
 import { PaymentsModule } from '@modules/payments/infrastructure/index.js';
 import { OrderingModule } from '@modules/ordering/infrastructure/index.js';
@@ -17,6 +18,7 @@ import { CustomersModule } from '@modules/customers/infrastructure/index.js';
     DeliveryModule,
     PaymentsModule,
     PromotionsModule,
+    RatingsModule,
   ],
   controllers: [AppController],
   providers: [

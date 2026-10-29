@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import {
   COURIER_REPOSITORY,
   CompleteDeliveryUseCase,
   DELIVERY_REPOSITORY,
   DispatchDeliveryUseCase,
+  GetDeliveryByOrderUseCase,
   GetDeliveryUseCase,
   ORDER_LOOKUP,
   PickUpDeliveryUseCase,
@@ -19,6 +20,11 @@ import {
   InMemoryDeliveryRepository,
 } from './persistence/index.js';
 
+/**
+ * Global so other contexts can inject the use cases listed in `exports`
+ * without importing this module (contexts only meet through `application`).
+ */
+@Global()
 @Module({
   controllers: [CouriersController, DeliveriesController],
   providers: [
@@ -30,9 +36,11 @@ import {
     PickUpDeliveryUseCase,
     CompleteDeliveryUseCase,
     GetDeliveryUseCase,
+    GetDeliveryByOrderUseCase,
     { provide: COURIER_REPOSITORY, useClass: InMemoryCourierRepository },
     { provide: DELIVERY_REPOSITORY, useClass: InMemoryDeliveryRepository },
     { provide: ORDER_LOOKUP, useClass: OrderingOrderLookup },
   ],
+  exports: [GetDeliveryByOrderUseCase],
 })
 export class DeliveryModule {}

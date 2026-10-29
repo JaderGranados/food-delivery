@@ -9,3 +9,4 @@ export * from './dispatch-delivery/index.js';
 export * from './pick-up-delivery/index.js';
 export * from './complete-delivery/index.js';
 export * from './get-delivery/index.js';
+export * from './get-delivery-by-order/index.js';

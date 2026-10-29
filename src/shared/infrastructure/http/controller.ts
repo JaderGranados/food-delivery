@@ -1,12 +1,14 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import {
   BadRequestError,
   ConflictError,
+  ForbiddenError,
   NotFoundError,
 } from '@shared/domain/index.js';
 
@@ -17,6 +19,9 @@ export abstract class Controller {
     }
     if (error instanceof BadRequestError) {
       throw new BadRequestException(error.message);
+    }
+    if (error instanceof ForbiddenError) {
+      throw new ForbiddenException(error.message);
     }
     if (error instanceof NotFoundError) {
       throw new NotFoundException(error.message);

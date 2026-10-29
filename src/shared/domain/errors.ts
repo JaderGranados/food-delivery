@@ -12,6 +12,13 @@ export abstract class ConflictError extends Error {
   }
 }
 
+export abstract class ForbiddenError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ForbiddenError';
+  }
+}
+
 export abstract class NotFoundError extends Error {
   constructor(message: string) {
     super(message);
