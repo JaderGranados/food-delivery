@@ -18,3 +18,17 @@ export abstract class NotFoundError extends Error {
     this.name = 'NotFoundError';
   }
 }
+
+export class InvalidMoneyAmountError extends BadRequestError {
+  constructor(amount: number) {
+    super(`Invalid money amount: ${amount}`);
+    this.name = 'InvalidMoneyAmountError';
+  }
+}
+
+export class InvalidCurrencyError extends BadRequestError {
+  constructor(currency: string) {
+    super(`Invalid currency: ${currency}`);
+    this.name = 'InvalidCurrencyError';
+  }
+}
