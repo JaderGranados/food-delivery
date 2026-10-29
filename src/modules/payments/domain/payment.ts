@@ -28,6 +28,11 @@ export interface RefundReservation {
   /** Gateway reference of the authorization being refunded. */
   reference: string;
   idempotencyKey: string;
+  /**
+   * True when this retries an unconfirmed refund instead of starting a new
+   * one, so undoing the claim must put it back as unconfirmed, not drop it.
+   */
+  resumed: boolean;
 }
 
 interface RefundEntry {
@@ -160,6 +165,7 @@ export class Payment {
       return {
         reference: this.reference!,
         idempotencyKey: retry.idempotencyKey,
+        resumed: true,
       };
     }
 
@@ -179,7 +185,7 @@ export class Payment {
       amount: amount.amount,
       unconfirmed: false,
     });
-    return { reference: this.reference!, idempotencyKey };
+    return { reference: this.reference!, idempotencyKey, resumed: false };
   }
 
   completeRefund(idempotencyKey: string): void {

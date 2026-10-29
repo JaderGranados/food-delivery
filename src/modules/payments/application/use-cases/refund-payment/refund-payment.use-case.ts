@@ -32,8 +32,21 @@ export class RefundPaymentUseCase implements UseCase<
 
     // Reserve the amount before calling the gateway, so refunds that arrive
     // meanwhile only see what is left and can never exceed the payment.
-    const { reference, idempotencyKey } = payment.reserveRefund(amount);
-    await this.payments.save(payment);
+    const { reference, idempotencyKey, resumed } =
+      payment.reserveRefund(amount);
+    try {
+      await this.payments.save(payment);
+    } catch (error) {
+      // Nothing was sent to the gateway on this attempt. A new refund is
+      // simply dropped, but a retried one may have gone through earlier, so
+      // it goes back to unconfirmed with its amount still reserved.
+      if (resumed) {
+        payment.markRefundUnconfirmed(idempotencyKey);
+      } else {
+        payment.abortRefund(idempotencyKey);
+      }
+      throw error;
+    }
 
     try {
       await this.gateway.refund(

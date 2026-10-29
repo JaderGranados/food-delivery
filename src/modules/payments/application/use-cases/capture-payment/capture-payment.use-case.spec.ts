@@ -14,6 +14,8 @@ import { CapturePaymentUseCase } from './capture-payment.use-case.js';
 
 class FakePaymentRepository implements PaymentRepository {
   readonly saved = new Map<string, Payment>();
+  /** Makes the next `save` calls fail, to simulate a store outage. */
+  failSaves = 0;
 
   findById(id: string): Promise<Payment | null> {
     return Promise.resolve(this.saved.get(id) ?? null);
@@ -38,6 +40,10 @@ class FakePaymentRepository implements PaymentRepository {
   }
 
   save(payment: Payment): Promise<Payment> {
+    if (this.failSaves > 0) {
+      this.failSaves -= 1;
+      return Promise.reject(new Error('store down'));
+    }
     this.saved.set(payment.id, payment);
     return Promise.resolve(payment);
   }
@@ -168,6 +174,20 @@ describe('CapturePayment', () => {
     expect(payments.saved.get('p-1')?.status).toBe('authorized');
 
     gateway.failNext = false;
+    await expect(capture.execute({ paymentId: 'p-1' })).resolves.toMatchObject({
+      status: 'captured',
+    });
+  });
+
+  it('leaves the payment capturable when the claim cannot be saved', async () => {
+    payments.failSaves = 1;
+
+    await expect(capture.execute({ paymentId: 'p-1' })).rejects.toThrow(
+      'store down',
+    );
+
+    expect(gateway.calls).toEqual([]);
+    expect(payments.saved.get('p-1')?.status).toBe('authorized');
     await expect(capture.execute({ paymentId: 'p-1' })).resolves.toMatchObject({
       status: 'captured',
     });

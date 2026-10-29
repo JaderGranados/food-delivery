@@ -23,7 +23,13 @@ export class CapturePaymentUseCase implements UseCase<
     // Claim the capture before calling the gateway, so a second request that
     // arrives meanwhile is rejected instead of capturing again.
     const reference = payment.beginCapture();
-    await this.payments.save(payment);
+    try {
+      await this.payments.save(payment);
+    } catch (error) {
+      // Nothing was sent to the gateway, so the payment is still capturable.
+      payment.abortCapture();
+      throw error;
+    }
 
     try {
       await this.gateway.capture(reference, `${payment.id}:capture`);

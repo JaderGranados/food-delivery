@@ -303,6 +303,8 @@ describe('Payment', () => {
         const retry = payment.reserveRefund(crc(4000));
 
         expect(retry.idempotencyKey).toBe(first.idempotencyKey);
+        expect(first.resumed).toBe(false);
+        expect(retry.resumed).toBe(true);
         expect(payment.refundable.equals(crc(6000))).toBe(true);
 
         payment.completeRefund(retry.idempotencyKey);

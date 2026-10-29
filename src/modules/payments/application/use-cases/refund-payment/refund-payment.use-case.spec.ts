@@ -16,6 +16,8 @@ import { RefundPaymentUseCase } from './refund-payment.use-case.js';
 
 class FakePaymentRepository implements PaymentRepository {
   readonly saved = new Map<string, Payment>();
+  /** Makes the next `save` calls fail, to simulate a store outage. */
+  failSaves = 0;
 
   findById(id: string): Promise<Payment | null> {
     return Promise.resolve(this.saved.get(id) ?? null);
@@ -40,6 +42,10 @@ class FakePaymentRepository implements PaymentRepository {
   }
 
   save(payment: Payment): Promise<Payment> {
+    if (this.failSaves > 0) {
+      this.failSaves -= 1;
+      return Promise.reject(new Error('store down'));
+    }
     this.saved.set(payment.id, payment);
     return Promise.resolve(payment);
   }
@@ -302,5 +308,42 @@ describe('RefundPayment', () => {
     );
 
     expect(new Set(gateway.refundKeys).size).toBe(2);
+  });
+
+  it('gives the amount back when the reservation cannot be saved', async () => {
+    payments.failSaves = 1;
+
+    await expect(
+      refund.execute({ paymentId: 'p-1', amount: 4000 }),
+    ).rejects.toThrow('store down');
+
+    expect(gateway.calls).toEqual([]);
+    expect(payments.saved.get('p-1')?.refundable.amount).toBe(10000);
+    await expect(
+      refund.execute({ paymentId: 'p-1', amount: 10000 }),
+    ).resolves.toMatchObject({ status: 'refunded' });
+  });
+
+  it('keeps an unconfirmed refund reserved when its retry cannot be saved', async () => {
+    gateway.failNext = true;
+    await expect(
+      refund.execute({ paymentId: 'p-1', amount: 4000 }),
+    ).rejects.toThrow('gateway down');
+    gateway.failNext = false;
+
+    payments.failSaves = 1;
+    await expect(
+      refund.execute({ paymentId: 'p-1', amount: 4000 }),
+    ).rejects.toThrow('store down');
+
+    expect(payments.saved.get('p-1')?.refundable.amount).toBe(6000);
+    await expect(
+      refund.execute({ paymentId: 'p-1', amount: 7000 }),
+    ).rejects.toThrow(RefundExceedsPaymentError);
+
+    await refund.execute({ paymentId: 'p-1', amount: 4000 });
+    expect(gateway.refundKeys).toHaveLength(2);
+    expect(gateway.refundKeys[0]).toBe(gateway.refundKeys[1]);
+    expect(payments.saved.get('p-1')?.refunded.amount).toBe(4000);
   });
 });
