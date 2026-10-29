@@ -16,7 +16,7 @@ import type { SignUpCustomerCommand } from './sign-up-customer.command.js';
 import type { SignedUpCustomer } from './signed-up-customer.js';
 
 @Injectable()
-export class SignUpCustomer implements UseCase<
+export class SignUpCustomerUseCase implements UseCase<
   SignUpCustomerCommand,
   SignedUpCustomer
 > {

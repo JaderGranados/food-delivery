@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import {
-  SignUpCustomer,
+  SignUpCustomerUseCase,
   type SignedUpCustomer,
   AddAddressUseCase,
 } from '../../application/index.js';
@@ -17,7 +17,7 @@ import { Controller as BaseController } from '@shared/infrastructure/index.js';
 @Controller('customers')
 export class CustomersController extends BaseController {
   constructor(
-    private readonly signUpCustomer: SignUpCustomer,
+    private readonly signUpCustomer: SignUpCustomerUseCase,
     private readonly addAddressUseCase: AddAddressUseCase,
   ) {
     super();

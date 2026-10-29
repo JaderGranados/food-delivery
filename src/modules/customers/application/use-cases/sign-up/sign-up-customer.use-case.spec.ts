@@ -4,7 +4,7 @@ import {
   EmailAlreadyInUseError,
 } from '../../../domain/index.js';
 import type { CustomerRepository, PasswordHasher } from '../../ports/index.js';
-import { SignUpCustomer } from './sign-up-customer.use-case.js';
+import { SignUpCustomerUseCase } from './sign-up-customer.use-case.js';
 
 class FakeCustomerRepository implements CustomerRepository {
   findById(id: string): Promise<Customer | null> {
@@ -28,11 +28,11 @@ const fakeHasher: PasswordHasher = {
 
 describe('SignUpCustomer', () => {
   let customers: FakeCustomerRepository;
-  let signUp: SignUpCustomer;
+  let signUp: SignUpCustomerUseCase;
 
   beforeEach(() => {
     customers = new FakeCustomerRepository();
-    signUp = new SignUpCustomer(customers, fakeHasher);
+    signUp = new SignUpCustomerUseCase(customers, fakeHasher);
   });
 
   it('registers a customer with a hashed password', async () => {
