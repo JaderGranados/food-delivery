@@ -1,9 +1,9 @@
 ---
-
 name: commit
-description: Review, test and commit the pending changes. Runs a code review and the unit tests BEFORE staging anything, then stages and commits only if both pass. Use when the user asks to commit, "commit my changes" or invokes /commit.
+description: Review, test and commit the pending changes. Runs a code review, static checks and the unit tests BEFORE staging anything, then stages and commits only if all pass. Use when the user asks to commit, "commit my changes" or invokes /commit.
 disable-model-invocation: true
-allowed-tools: Bash(git status:_), Bash(git diff:_), Bash(git log:_), Bash(git add:_), Bash(git commit:_), Bash(yarn test:_)---
+allowed-tools: Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git add:*), Bash(git commit:*), Bash(yarn test:*)
+---
 
 # Commit
 
@@ -24,16 +24,24 @@ Invoke the `code-review` skill on the working-tree diff.
   re-run this skill afterwards.
 - Style-only nits do not block; mention them in the final summary.
 
-## 3. Unit tests (before staging)
+## 3. Static checks (before staging)
+
+Invoke the `static-checks` skill (`yarn format:check` and `yarn lint`).
+
+- If it fails, report the output and **stop**. Do not stage or commit. Offer
+  to fix it (`yarn format` for formatting) and re-run this skill afterwards;
+  never bypass with `--no-verify`.
+
+## 4. Unit tests (before staging)
 
 Run `yarn test`.
 
 - If it fails, report the output and **stop**. Fix the cause; never bypass
   with `--no-verify`.
 
-## 4. Stage and commit
+## 5. Stage and commit
 
-Only after steps 2 and 3 pass:
+Only after steps 2, 3 and 4 pass:
 
 1. Stage files by explicit path (`git add <paths>`), never `git add -A`/`.`.
    Skip secrets (`.env`, credentials) and unrelated changes; ask if unsure.
