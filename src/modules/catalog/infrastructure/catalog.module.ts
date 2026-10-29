@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import {
   AddMenuItemUseCase,
   GetRestaurantMenuUseCase,
@@ -9,6 +9,11 @@ import {
 import { CatalogController } from './http/index.js';
 import { InMemoryRestaurantRepository } from './persistence/index.js';
 
+/**
+ * Global so other contexts can inject the use cases listed in `exports`
+ * without importing this module (contexts only meet through `application`).
+ */
+@Global()
 @Module({
   controllers: [CatalogController],
   providers: [
@@ -18,5 +23,6 @@ import { InMemoryRestaurantRepository } from './persistence/index.js';
     GetRestaurantMenuUseCase,
     { provide: RESTAURANT_REPOSITORY, useClass: InMemoryRestaurantRepository },
   ],
+  exports: [GetRestaurantMenuUseCase],
 })
 export class CatalogModule {}

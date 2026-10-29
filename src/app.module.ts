@@ -3,10 +3,11 @@ import { APP_PIPE } from '@nestjs/core';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { CatalogModule } from '@modules/catalog/infrastructure/index.js';
+import { OrderingModule } from '@modules/ordering/infrastructure/index.js';
 import { CustomersModule } from '@modules/customers/infrastructure/index.js';
 
 @Module({
-  imports: [CustomersModule, CatalogModule],
+  imports: [CustomersModule, CatalogModule, OrderingModule],
   controllers: [AppController],
   providers: [
     AppService,
