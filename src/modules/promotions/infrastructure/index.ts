@@ -1,1 +1,1 @@
-export {};
+export * from './promotions.module.js';
